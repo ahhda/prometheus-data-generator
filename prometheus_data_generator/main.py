@@ -261,9 +261,10 @@ class PrometheusDataGenerator:
         """
         Launch the flask webserver on a thread.
         """
+        port = int(environ.get('FLASK_PORT', '9000'))
         threading.Thread(
             target=self.app.run,
-            kwargs={"port": "9000", "host": "0.0.0.0"}
+            kwargs={"port": port, "host": "0.0.0.0"}
         ).start()
 
 
