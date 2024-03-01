@@ -1,0 +1,40 @@
+name: deploy
+on:
+  push:
+    branches: [master]
+    tags: [v*]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # Without this the fetch depth defaults to 1, which only includes the most recent commit. We want to know the full history so that `git describe` can give more information when it is invoked in the orderbook's crate build script.
+          fetch-depth: '0'
+
+      - uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Services image metadata
+        id: meta_services
+        uses: docker/metadata-action@v4
+        with:
+          images: ghcr.io/${{ github.repository }}
+
+      - name: Services image build
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ${{ steps.meta_services.outputs.tags }}
+          labels: ${{ steps.meta_services.outputs.labels }}
