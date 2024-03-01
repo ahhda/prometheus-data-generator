@@ -225,6 +225,7 @@ class PrometheusDataGenerator:
         Main method to serve the metrics. It's used mainly to get the self
         parameter and pass it to the next function.
         """
+        metrics_path = environ.get('METRICS_PATH', '/metrics/')
         @self.app.route("/")
         def root():
             """
@@ -233,7 +234,7 @@ class PrometheusDataGenerator:
             page = "<a href=\"/metrics/\">Metrics</a>"
             return page
 
-        @self.app.route("/metrics/")
+        @self.app.route(metrics_path)
         def metrics():
             """
             Plain method to expose the prometheus metrics. Every time it's
